@@ -1,0 +1,17 @@
+{
+  "name": "pokemon-janken",
+  "version": "1.0.0",
+  "description": "make pokemon-janken front app",
+  "license": "ISC",
+  "author": "taiki",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx @tailwindcss/cli -i ./src/input.css -o ./dist/output.css",
+    "dev": "npx @tailwindcss/cli -i ./src/input.css -o ./dist/output.css --watch"
+    },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "tailwindcss": "^4.3.0"
+  }
+}

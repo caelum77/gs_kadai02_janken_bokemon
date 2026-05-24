@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dist/output.css">
+    <title>じゃんけんボケモンバトル</title>
+</head>
+<body class="min-h-screen bg-[#d6d0a8] text-[#181018]">
+    <main class="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center gap-4 p-4">
+        <header class="w-full max-w-[960px] text-center">
+            <h1 class="text-lg font-bold font-pixel tracking-normal sm:text-2xl">じゃんけんボケモンバトル</h1>
+        </header>
+
+        <section class="flex w-full max-w-[960px] flex-col items-center gap-3 rounded-lg border-4 border-[#181018] bg-[#f0e8c8] p-3 shadow-[8px_8px_0_#181018]">
+            <div class="relative aspect-[10/9] w-full max-w-[480px] overflow-hidden rounded border-4 border-[#181018] bg-[#f0e8c8]">
+                <canvas id="gameCanvas" width="480" height="432" class="h-full w-full [image-rendering:pixelated]"></canvas>
+            </div>
+            <div class="grid w-full max-w-[480px] grid-cols-2 gap-2 text-[10px] leading-5 sm:grid-cols-4">
+                <p class="rounded border-2 border-[#181018] bg-[#f8f8f8] px-2 py-1">移動: ↑↓←→ / WASD</p>
+                <p class="rounded border-2 border-[#181018] bg-[#f8f8f8] px-2 py-1">決定: Enter / Z</p>
+                <p class="rounded border-2 border-[#181018] bg-[#f8f8f8] px-2 py-1">戻る: X</p>
+                <p class="rounded border-2 border-[#181018] bg-[#f8f8f8] px-2 py-1">クリック: 決定</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/battle.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
