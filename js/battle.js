@@ -111,7 +111,7 @@ function drawBattleScene(ctx, state, timestamp) {
       label: move.id === 'SPECIAL' ? player.specialName : move.name,
       disabled,
     }));
-    drawMenu(ctx, items, battle.moveIndex, 176, 336, 288, 80, { cols: 2 });
+    drawMenu(ctx, items, battle.moveIndex, 232, 336, 232, 80, { cols: 2 });
   } else {
     drawTextBox(ctx, state.textState);
   }

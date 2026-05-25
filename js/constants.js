@@ -53,8 +53,8 @@ const CPU_TALK_MESSAGES = [
   'グーばかり だすと こころを よまれるぞ！',
   'このへやの BGM なんだか クセに なるなあ',
   'おれに かつコツ？ そんなの ないない！',
-  'さあ ボケモン(Bokemon)バトル しようぜ！',
-  'おれの ブリン(Burin) まるくなってきたな'
+  'ボケモン(Bokemon)バトル しようぜ！',
+  'おれの ブリン(Burin) まるくなったな'
 ];
 
 const MAP_COLS = CANVAS_WIDTH / TILE_SIZE;
