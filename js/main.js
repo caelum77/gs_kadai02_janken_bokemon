@@ -2,7 +2,7 @@ let canvas;
 let ctx;
 let gameState;
 const START_BATTLE_TRANSITION_MS = 2700;
-const BGM_VOLUME = 0.2;
+const BGM_VOLUME = 0.15;
 const bgm = {
   map: new Audio('src/8bit_City-Of-Bright-Longing.mp3'),
   startBattle: new Audio('src/start_battle_BGM.mp3'),
@@ -46,6 +46,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   canvas.addEventListener('click', () => handleConfirm());
+  setupVirtualControls();
 
   requestAnimationFrame(loop);
 });
@@ -116,6 +117,51 @@ function handleConfirm() {
   else if (gameState.scene === SCENES.SELECT) choosePokemon(gameState);
   else if (gameState.scene === SCENES.BATTLE) handleBattleConfirm(gameState);
   syncBgm();
+}
+
+function setupVirtualControls() {
+  const buttons = document.querySelectorAll('[data-virtual-key]');
+  const repeatableKeys = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+  const activePointers = new Map();
+
+  buttons.forEach((button) => {
+    const key = button.dataset.virtualKey;
+
+    button.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      button.setPointerCapture(event.pointerId);
+      pressVirtualKey(key);
+      button.classList.add('is-pressed');
+
+      if (repeatableKeys.has(key)) {
+        const initialDelay = window.setTimeout(() => {
+          const repeatId = window.setInterval(() => pressVirtualKey(key), 160);
+          activePointers.set(event.pointerId, { ...activePointers.get(event.pointerId), repeatId });
+        }, 260);
+        activePointers.set(event.pointerId, { button, initialDelay, repeatId: null });
+      } else {
+        activePointers.set(event.pointerId, { button, initialDelay: null, repeatId: null });
+      }
+    });
+
+    const stopPress = (event) => {
+      const active = activePointers.get(event.pointerId);
+      if (!active) return;
+      if (active.initialDelay) window.clearTimeout(active.initialDelay);
+      if (active.repeatId) window.clearInterval(active.repeatId);
+      active.button.classList.remove('is-pressed');
+      activePointers.delete(event.pointerId);
+    };
+
+    button.addEventListener('pointerup', stopPress);
+    button.addEventListener('pointercancel', stopPress);
+    button.addEventListener('lostpointercapture', stopPress);
+  });
+}
+
+function pressVirtualKey(key) {
+  if (key === 'Enter') handleConfirm();
+  else handleInput(key);
 }
 
 function isConfirm(key) {

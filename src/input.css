@@ -9,3 +9,132 @@
     font-family: "Press Start 2P", monospace;
   }
 }
+
+@layer components {
+  .touch-controls {
+    display: none;
+    width: min(100%, 480px);
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  .d-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 58px);
+    grid-template-rows: repeat(3, 58px);
+    gap: 4px;
+  }
+
+  .d-pad-up {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .d-pad-left {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .d-pad-right {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .d-pad-down {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .action-pad {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    padding-bottom: 4px;
+  }
+
+  .d-pad-button,
+  .action-button {
+    display: grid;
+    place-items: center;
+    border: 4px solid #181018;
+    background: #f8f8f8;
+    color: #181018;
+    box-shadow: 4px 4px 0 #181018;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: none;
+  }
+
+  .d-pad-button {
+    width: 58px;
+    height: 58px;
+    font-size: 18px;
+  }
+
+  .action-button {
+    width: 62px;
+    height: 62px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+
+  .action-confirm {
+    background: #f7d65a;
+  }
+
+  .action-cancel {
+    background: #b8d8f0;
+  }
+
+  .d-pad-button:active,
+  .action-button:active,
+  .d-pad-button.is-pressed,
+  .action-button.is-pressed {
+    translate: 4px 4px;
+    box-shadow: 0 0 0 #181018;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .touch-controls {
+      display: flex;
+    }
+
+  }
+
+  @media (max-width: 420px) {
+    .touch-controls {
+      gap: 10px;
+    }
+
+    .d-pad {
+      grid-template-columns: repeat(3, 50px);
+      grid-template-rows: repeat(3, 50px);
+    }
+
+    .d-pad-button {
+      width: 50px;
+      height: 50px;
+      font-size: 16px;
+    }
+
+    .action-pad {
+      gap: 8px;
+    }
+
+    .action-button {
+      width: 54px;
+      height: 54px;
+      font-size: 12px;
+    }
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .keyboard-help {
+    display: none;
+  }
+}
