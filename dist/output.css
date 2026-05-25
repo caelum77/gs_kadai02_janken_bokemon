@@ -9,10 +9,6 @@
       "Courier New", monospace;
     --spacing: 0.25rem;
     --container-5xl: 64rem;
-    --text-lg: 1.125rem;
-    --text-lg--line-height: calc(1.75 / 1.125);
-    --text-2xl: 1.5rem;
-    --text-2xl--line-height: calc(2 / 1.5);
     --font-weight-bold: 700;
     --tracking-normal: 0em;
     --radius-lg: 0.5rem;
@@ -276,12 +272,11 @@
   .font-pixel {
     font-family: var(--font-pixel);
   }
-  .text-lg {
-    font-size: var(--text-lg);
-    line-height: var(--tw-leading, var(--text-lg--line-height));
-  }
   .text-\[10px\] {
     font-size: 10px;
+  }
+  .text-\[23px\] {
+    font-size: 23px;
   }
   .leading-5 {
     --tw-leading: calc(var(--spacing) * 5);
@@ -315,10 +310,9 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
-  .sm\:text-2xl {
+  .sm\:text-\[29px\] {
     @media (width >= 40rem) {
-      font-size: var(--text-2xl);
-      line-height: var(--tw-leading, var(--text-2xl--line-height));
+      font-size: 29px;
     }
   }
 }

@@ -36,20 +36,20 @@ function drawMenu(ctx, items, selectedIndex, x, y, w, h, options = {}) {
     const tx = x + 14 + col * cellW;
     const ty = y + 14 + row * cellH;
     const disabled = item.disabled;
-    if (index === selectedIndex && !disabled) drawText(ctx, '▶', tx, ty + 2, 10);
-    drawText(ctx, item.label, tx + 18, ty + 2, 10, disabled ? COLORS.GRAY : COLORS.DARK);
+    if (index === selectedIndex && !disabled) drawText(ctx, '▶', tx, ty + 2, 14);
+    drawText(ctx, item.label, tx + 18, ty + 2, 14, disabled ? COLORS.GRAY : COLORS.DARK);
   });
 }
 
 function drawTextBox(ctx, textState) {
   drawMessagePanel(ctx, 14, 326, 452, 90);
-  const lines = wrapGameText(textState.visibleText || '', 30);
+  const lines = wrapGameText(textState.visibleText || '', 24);
   lines.slice(0, 2).forEach((line, index) => {
-    drawText(ctx, line, 36, 350 + index * 28, 11);
+    drawText(ctx, line, 36, 350 + index * 28, 16);
   });
   const canAdvance = !textState.canAdvanceAt || performance.now() >= textState.canAdvanceAt;
   if (textState.done && canAdvance && Math.floor(performance.now() / 350) % 2 === 0) {
-    drawText(ctx, '▼', 428, 392, 10);
+    drawText(ctx, '▼', 428, 392, 14);
   }
 }
 

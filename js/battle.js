@@ -60,11 +60,11 @@ function choosePokemon(state) {
 function drawPokemonSelect(ctx, state) {
   px(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLORS.BG);
   drawPanel(ctx, 16, 16, 448, 400);
-  drawText(ctx, 'てきの  ボケモン', 42, 42, 11);
+  drawText(ctx, 'てきの  ボケモン', 42, 42, 16);
   drawPanel(ctx, 42, 68, 112, 112);
   drawPokemonSprite(ctx, null, 58, 82, 72, false, true);
-  drawText(ctx, '???', 180, 112, 13);
-  drawText(ctx, 'ボケモンを えらんでください', 42, 210, 11);
+  drawText(ctx, '???', 180, 112, 14);
+  drawText(ctx, 'ボケモンを えらんでください', 42, 210, 16);
 
   const positions = [
     { x: 42, y: 244 },
@@ -74,9 +74,9 @@ function drawPokemonSelect(ctx, state) {
   positions.forEach((pos, index) => {
     const pokemon = POKEMONS[index];
     drawPanel(ctx, pos.x, pos.y, 180, 72);
-    if (state.selectIndex === index) drawText(ctx, '▶', pos.x + 12, pos.y + 18, 10);
-    drawText(ctx, pokemon.name, pos.x + 34, pos.y + 18, 10);
-    drawText(ctx, `HP ${pokemon.maxHp}`, pos.x + 34, pos.y + 42, 10);
+    if (state.selectIndex === index) drawText(ctx, '▶', pos.x + 12, pos.y + 18, 14);
+    drawText(ctx, pokemon.name, pos.x + 34, pos.y + 18, 14);
+    drawText(ctx, `HP ${pokemon.maxHp}`, pos.x + 34, pos.y + 42, 14);
   });
 }
 
@@ -87,15 +87,15 @@ function drawBattleScene(ctx, state, timestamp) {
   px(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLORS.BG);
 
   drawPanel(ctx, 18, 18, 196, 74);
-  drawText(ctx, `${battleSubject(pc, 'タケシ')} ♂ Lv.--`, 34, 34, 10);
-  drawText(ctx, 'HP:', 34, 58, 9);
+  drawText(ctx, `${battleSubject(pc, 'タケシ')} ♂ Lv.--`, 34, 34, 14);
+  drawText(ctx, 'HP:', 34, 58, 13);
   drawHPBar(ctx, 76, 58, pc.displayHp, pc.maxHp, 104);
 
   drawPanel(ctx, 242, 224, 214, 88);
-  drawText(ctx, `${battleSubject(player, 'あなた')} ♀ Lv.--`, 260, 240, 10);
-  drawText(ctx, 'HP:', 260, 264, 9);
+  drawText(ctx, `${battleSubject(player, 'あなた')} ♀ Lv.--`, 260, 240, 14);
+  drawText(ctx, 'HP:', 260, 264, 13);
   drawHPBar(ctx, 302, 264, player.displayHp, player.maxHp, 104);
-  drawText(ctx, `${Math.max(0, player.currentHp)}/${player.maxHp}`, 322, 284, 9);
+  drawText(ctx, `${Math.max(0, player.currentHp)}/${player.maxHp}`, 322, 284, 13);
 
   drawPokemonWithEffects(ctx, pc, 300, 40, 120, false, timestamp);
   drawPokemonWithEffects(ctx, player, 50, 200, 120, true, timestamp);

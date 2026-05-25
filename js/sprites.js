@@ -99,7 +99,7 @@ function drawMoveEffectSprite(ctx, moveId, centerX, centerY, height) {
 
 function drawUnknownPokemon(ctx, x, y, size = 80) {
   drawPixelBall(ctx, x, y, size, '#d8d8d8', '#888888');
-  drawText(ctx, '???', x + size / 2 - 18, y + size + 18, 12);
+  drawText(ctx, '???', x + size / 2 - 18, y + size + 18, 13);
 }
 
 function drawPokemonSprite(ctx, pokemon, x, y, size = 96, back = false, hidden = false) {
