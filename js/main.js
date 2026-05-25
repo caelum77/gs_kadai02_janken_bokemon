@@ -59,6 +59,7 @@ function createInitialState() {
     battle: null,
     textQueue: [],
     textState: null,
+    mapDialogOpen: false,
     transition: { active: false, type: null, startedAt: 0 },
   };
 }
@@ -72,6 +73,10 @@ function handleInput(key) {
 }
 
 function handleMapInput(key) {
+  if (isConfirm(key)) {
+    tryTalkToLeftCpu(gameState);
+    return;
+  }
   if (key === 'ArrowUp' || key.toLowerCase() === 'w') movePlayer(gameState, 0, -1, 'up');
   if (key === 'ArrowDown' || key.toLowerCase() === 's') movePlayer(gameState, 0, 1, 'down');
   if (key === 'ArrowLeft' || key.toLowerCase() === 'a') movePlayer(gameState, -1, 0, 'left');
@@ -107,7 +112,8 @@ function handleBattleInput(key) {
 }
 
 function handleConfirm() {
-  if (gameState.scene === SCENES.SELECT) choosePokemon(gameState);
+  if (gameState.scene === SCENES.MAP) tryTalkToLeftCpu(gameState);
+  else if (gameState.scene === SCENES.SELECT) choosePokemon(gameState);
   else if (gameState.scene === SCENES.BATTLE) handleBattleConfirm(gameState);
   syncBgm();
 }
@@ -175,6 +181,7 @@ function resetToMap() {
   gameState.battle = null;
   gameState.textQueue = [];
   gameState.textState = null;
+  gameState.mapDialogOpen = false;
   gameState.transition = { active: false, type: null, startedAt: 0 };
 }
 

@@ -42,15 +42,24 @@ function drawMenu(ctx, items, selectedIndex, x, y, w, h, options = {}) {
 }
 
 function drawTextBox(ctx, textState) {
-  drawPanel(ctx, 16, 336, 448, 80);
-  const lines = wrapGameText(textState.visibleText || '', 20);
+  drawMessagePanel(ctx, 14, 326, 452, 90);
+  const lines = wrapGameText(textState.visibleText || '', 30);
   lines.slice(0, 2).forEach((line, index) => {
-    drawText(ctx, line, 36, 354 + index * 24, 11);
+    drawText(ctx, line, 36, 350 + index * 28, 11);
   });
   const canAdvance = !textState.canAdvanceAt || performance.now() >= textState.canAdvanceAt;
   if (textState.done && canAdvance && Math.floor(performance.now() / 350) % 2 === 0) {
-    drawText(ctx, '▼', 428, 388, 10);
+    drawText(ctx, '▼', 428, 392, 10);
   }
+}
+
+function drawMessagePanel(ctx, x, y, w, h) {
+  px(ctx, x, y, w, h, COLORS.WHITE);
+  ctx.strokeStyle = COLORS.DARK;
+  ctx.lineWidth = 4;
+  ctx.strokeRect(x + 2, y + 2, w - 4, h - 4);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x + 10, y + 10, w - 20, h - 20);
 }
 
 function wrapGameText(text, limit) {

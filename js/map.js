@@ -16,6 +16,10 @@ function drawMapScene(ctx, state) {
   const screenX = state.playerPos.x * TILE_SIZE;
   const screenY = state.playerPos.y * TILE_SIZE;
   drawPlayerSprite(ctx, screenX, screenY, state.playerDir);
+
+  if (state.mapDialogOpen) {
+    drawTextBox(ctx, state.textState);
+  }
 }
 
 function drawBattleRoomImage(ctx) {
@@ -81,7 +85,7 @@ function drawTile(ctx, tile, x, y) {
 }
 
 function movePlayer(state, dx, dy, direction) {
-  if (state.scene !== SCENES.MAP || state.transition.active) return;
+  if (state.scene !== SCENES.MAP || state.transition.active || state.mapDialogOpen) return;
   const nextX = state.playerPos.x + dx;
   const nextY = state.playerPos.y + dy;
   state.playerDir = direction;
@@ -93,4 +97,49 @@ function movePlayer(state, dx, dy, direction) {
   if (tile === TILE.SEAT) {
     beginBattleTransition(state);
   }
+}
+
+function tryTalkToLeftCpu(state) {
+  if (state.scene !== SCENES.MAP || state.transition.active) return false;
+  if (state.mapDialogOpen) return advanceMapDialog(state);
+
+  const facingTile = getFacingTile(state);
+  const isFacingLeftCpu = LEFT_CPU_TILES.some((tile) => (
+    tile.x === facingTile.x && tile.y === facingTile.y
+  ));
+  if (!isFacingLeftCpu) return false;
+
+  const message = CPU_TALK_MESSAGES[Math.floor(Math.random() * CPU_TALK_MESSAGES.length)];
+  state.mapDialogOpen = true;
+  setMessage(state, message);
+  return true;
+}
+
+function advanceMapDialog(state) {
+  if (!state.textState) {
+    state.mapDialogOpen = false;
+    return true;
+  }
+  if (state.textState.done) {
+    state.textQueue = [];
+    state.textState = null;
+    state.mapDialogOpen = false;
+  } else {
+    completeTextMessage(state.textState);
+  }
+  return true;
+}
+
+function getFacingTile(state) {
+  const offsets = {
+    up: { x: 0, y: -1 },
+    down: { x: 0, y: 1 },
+    left: { x: -1, y: 0 },
+    right: { x: 1, y: 0 },
+  };
+  const offset = offsets[state.playerDir] || offsets.down;
+  return {
+    x: state.playerPos.x + offset.x,
+    y: state.playerPos.y + offset.y,
+  };
 }

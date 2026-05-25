@@ -37,6 +37,26 @@ const TILE = {
   SEAT: 3,
 };
 
+const LEFT_CPU_TILES = [
+  { x: 6, y: 7 },
+  { x: 7, y: 7 },
+  { x: 6, y: 8 },
+  { x: 7, y: 8 },
+  { x: 6, y: 9 },
+  { x: 7, y: 9 },
+  { x: 6, y: 10 },
+  { x: 7, y: 10 },
+];
+
+const CPU_TALK_MESSAGES = [
+  'じゃんけんは あいこの ときこそ こころが ためされる！',
+  'グーばかり だすと こころを よまれるぞ！',
+  'このへやの BGM なんだか クセに なるなあ',
+  'おれに かつコツ？ そんなの ないない！',
+  'さあ ボケモン(Bokemon)バトル しようぜ！',
+  'おれの ブリン(Burin) まるくなってきたな'
+];
+
 const MAP_COLS = CANVAS_WIDTH / TILE_SIZE;
 const MAP_ROWS = CANVAS_HEIGHT / TILE_SIZE;
 
