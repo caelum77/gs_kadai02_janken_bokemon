@@ -113,7 +113,7 @@ function update(timestamp) {
 function updateTransition(state, timestamp) {
   if (!state.transition.active) return;
   const elapsed = timestamp - state.transition.startedAt;
-  if (state.transition.type === 'FLASH_TO_SELECT' && elapsed > 620) {
+  if (state.transition.type === 'FLASH_TO_SELECT' && elapsed > 1240) {
     state.transition.active = false;
     startPokemonSelect(state);
   }
@@ -133,13 +133,13 @@ function drawTransition(ctx, state, timestamp) {
   if (!state.transition.active) return;
   const elapsed = timestamp - state.transition.startedAt;
   if (state.transition.type === 'BATTLE_TO_MAP') {
-    ctx.globalAlpha = Math.min(1, elapsed / 900);
+    ctx.globalAlpha = Math.min(1, elapsed / 500);
     px(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLORS.WHITE);
     ctx.globalAlpha = 1;
     return;
   }
   const flashOn = Math.floor(elapsed / 100) % 2 === 0;
-  ctx.globalAlpha = elapsed > 420 ? Math.min(1, (elapsed - 420) / 160) : 0.75;
+  ctx.globalAlpha = elapsed > 5000 ? Math.min(1, (elapsed - 1600) / 160) : 0.75;
   px(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, flashOn ? COLORS.WHITE : COLORS.DARK);
   ctx.globalAlpha = 1;
 }

@@ -99,19 +99,24 @@ const MOVES = [
   { id: 'SPECIAL', name: 'とくしゅわざ', type: 'SPECIAL', value: 3 },
 ];
 
+const THUNDER_WAVE_SUCCESS_RATE = 0.66;
+
 const MESSAGES = {
   BATTLE_START: (name) => `${name}は しょうぶを しかけてきた！`,
+  SEND_OUT: (name, pokemon) => `${name}は ${pokemon}を くりだした！`,
+  GO_PLAYER: (pokemon) => `ゆけっ！${pokemon}！`,
   PLAYER_CHOSE: (move) => `あなたは ${move} を えらんだ！`,
-  PC_CHOSE: (move) => `あいては ${move} を えらんだ！`,
+  PC_CHOSE: (move) => `タケシは ${move} を えらんだ！`,
   PLAYER_WINS: 'じゃんけんは あなたの かち！',
-  PC_WINS: 'じゃんけんは あいての かち！',
+  PC_WINS: 'じゃんけんは タケシの かち！',
   DRAW: 'じゃんけんは あいこ！',
-  PLAYER_DAMAGED: (damage) => `じゃんけんは あいての かち！あなたは ${damage} のダメージ！`,
-  PC_DAMAGED: (damage) => `じゃんけんは あなたの かち！あいては ${damage} のダメージ！`,
-  BOTH_DAMAGED: (playerDamage, pcDamage) => `じゃんけんは あいこ！あなたは${playerDamage} あいては${pcDamage} のダメージ！`,
+  PLAYER_DAMAGED: (damage) => `じゃんけんは タケシの かち！あなたは ${damage} のダメージ！`,
+  PC_DAMAGED: (damage) => `じゃんけんは あなたの かち！タケシは ${damage} のダメージ！`,
+  BOTH_DAMAGED: (playerDamage, pcDamage) => `じゃんけんは あいこ！あなたは${playerDamage} タケシは${pcDamage} のダメージ！`,
   NO_DAMAGE: 'ダメージは なかった！',
   SPECIAL_USED: (name, move) => `${name}は ${move}を つかった！`,
   BOTH_SPECIAL: 'おたがい とくしゅわざを つかった！',
+  SPECIAL_FAILED: 'しかし うまく きまらなかった！',
   PARALYZE: (name) => `${name}は しびれて うごけない！`,
   PARALYZE_RECOVERED: (name) => `${name}の まひが なおった！`,
   DEF_DOWN: (name) => `${name}は ぼうぎょが さがった！`,

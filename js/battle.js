@@ -1,5 +1,6 @@
 const FAINT_ANIMATION_MS = 700;
 const FAINT_DROP_DISTANCE = 42;
+const SPECIAL_FLASH_MS = 550;
 
 function createPokemon(template, ownerLabel = '') {
   return {
@@ -33,7 +34,7 @@ function startPokemonSelect(state) {
   state.selectIndex = 0;
   state.battle = {
     playerPokemon: null,
-    pcPokemon: createPokemon(pcTemplate, 'あいて'),
+    pcPokemon: createPokemon(pcTemplate, 'タケシ'),
     phase: 'COMMAND',
     commandIndex: 0,
     moveIndex: 0,
@@ -41,6 +42,7 @@ function startPokemonSelect(state) {
     pcMove: null,
     winner: null,
     escaped: false,
+    moveEffects: [],
   };
 }
 
@@ -48,7 +50,11 @@ function choosePokemon(state) {
   state.battle.playerPokemon = createPokemon(POKEMONS[state.selectIndex], 'あなた');
   state.scene = SCENES.BATTLE;
   state.battle.phase = 'INTRO_TEXT';
-  setMessage(state, MESSAGES.BATTLE_START(battleSubject(state.battle.pcPokemon, 'あいて')), 'COMMAND');
+  setMessage(state, [
+    MESSAGES.BATTLE_START(battleSubject(state.battle.pcPokemon, 'タケシ')),
+    MESSAGES.SEND_OUT(battleSubject(state.battle.pcPokemon, 'タケシ'), state.battle.pcPokemon.name),
+    MESSAGES.GO_PLAYER(state.battle.playerPokemon.name),
+  ], 'COMMAND');
 }
 
 function drawPokemonSelect(ctx, state) {
@@ -81,18 +87,19 @@ function drawBattleScene(ctx, state, timestamp) {
   px(ctx, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, COLORS.BG);
 
   drawPanel(ctx, 18, 18, 196, 74);
-  drawText(ctx, `${battleSubject(pc, 'あいて')}は ♂ Lv.--`, 34, 34, 10);
+  drawText(ctx, `${battleSubject(pc, 'タケシ')} ♂ Lv.--`, 34, 34, 10);
   drawText(ctx, 'HP:', 34, 58, 9);
   drawHPBar(ctx, 76, 58, pc.displayHp, pc.maxHp, 104);
 
   drawPanel(ctx, 242, 224, 214, 88);
-  drawText(ctx, `${battleSubject(player, 'あなた')}は ♀ Lv.--`, 260, 240, 10);
+  drawText(ctx, `${battleSubject(player, 'あなた')} ♀ Lv.--`, 260, 240, 10);
   drawText(ctx, 'HP:', 260, 264, 9);
   drawHPBar(ctx, 302, 264, player.displayHp, player.maxHp, 104);
   drawText(ctx, `${Math.max(0, player.currentHp)}/${player.maxHp}`, 322, 284, 9);
 
   drawPokemonWithEffects(ctx, pc, 284, 48, 96, false, timestamp);
   drawPokemonWithEffects(ctx, player, 44, 170, 82, true, timestamp);
+  drawMoveEffects(ctx, battle.moveEffects, timestamp);
 
   if (battle.phase === 'COMMAND') {
     drawTextBox(ctx, { visibleText: `${battleSubject(player, 'あなた')}は こうどうを えらんでね`, done: false });
@@ -126,6 +133,13 @@ function drawPokemonWithEffects(ctx, pokemon, x, y, size, back, timestamp) {
   ctx.restore();
 }
 
+function drawMoveEffects(ctx, effects = [], timestamp) {
+  effects.forEach((effect) => {
+    const bob = Math.sin(timestamp / 120) * 3;
+    drawMoveEffectSprite(ctx, effect.moveId, effect.centerX, effect.centerY + bob, effect.height);
+  });
+}
+
 function handleBattleConfirm(state) {
   const battle = state.battle;
   if (battle.phase === 'COMMAND') {
@@ -150,14 +164,12 @@ function handleBattleConfirm(state) {
   if (state.textState?.done) {
     if (state.textState.canAdvanceAt && performance.now() < state.textState.canAdvanceAt) return;
     if (!advanceMessage(state)) {
-      if (battle.escaped) resetToMap();
+      if (battle.escaped) beginReturnToMapTransition(state);
       else if (battle.winner) beginReturnToMapTransition(state);
       else battle.phase = 'COMMAND';
     }
   } else if (state.textState) {
-    state.textState.visibleText = state.textState.fullText;
-    state.textState.charIndex = state.textState.fullText.length;
-    state.textState.done = true;
+    completeTextMessage(state.textState);
   }
 }
 
@@ -176,7 +188,7 @@ function resolveTurn(state, playerMove) {
   }
 
   if (pc.paralyzed > 0) {
-    logs.push(MESSAGES.PARALYZE(battleSubject(pc, 'あいて')));
+    logs.push(MESSAGES.PARALYZE(battleSubject(pc, 'タケシ')));
     cMove = null;
   } else {
     logs.push(MESSAGES.PC_CHOSE(moveDisplayName(pc, cMove)));
@@ -188,11 +200,10 @@ function resolveTurn(state, playerMove) {
     logs.push(MESSAGES.PLAYER_CHOSE(moveDisplayName(player, pMove)));
   }
 
+  battle.moveEffects = createBasicMoveEffects(pMove, cMove);
   const result = computeTurn(player, pc, pMove, cMove, logs);
-  if (result.playerSpecial) player.flashUntil = performance.now() + 550;
-  if (result.pcSpecial) pc.flashUntil = performance.now() + 550;
 
-  logs.push(...createDamageMessages(player, pc, result));
+  logs.push(...createDamageMessages(player, pc, result, battle));
 
   const nextPlayerHp = Math.max(0, player.currentHp - result.damageToPlayer);
   const nextPcHp = Math.max(0, pc.currentHp - result.damageToPc);
@@ -238,14 +249,28 @@ function createParalysisRecoveryMessages(player, pc, playerParalyzedAtTurnStart,
   }
   if (pcParalyzedAtTurnStart > 0 && pc.paralyzed > 0) {
     pc.paralyzed -= 1;
-    if (pc.paralyzed === 0) messages.push(MESSAGES.PARALYZE_RECOVERED('あいて'));
+    if (pc.paralyzed === 0) messages.push(MESSAGES.PARALYZE_RECOVERED('タケシ'));
   }
 
   return messages;
 }
 
-function createDamageMessages(player, pc, result) {
-  const applyDamage = () => applyTurnDamage(player, pc, result);
+function createBasicMoveEffects(playerMove, pcMove) {
+  const effects = [];
+  if (pcMove?.type === 'BASIC') {
+    effects.push({ moveId: pcMove.id, centerX: 242, centerY: 152, height: 67 });
+  }
+  if (playerMove?.type === 'BASIC') {
+    effects.push({ moveId: playerMove.id, centerX: 185, centerY: 210, height: 57 });
+  }
+  return effects;
+}
+
+function createDamageMessages(player, pc, result, battle) {
+  const applyDamage = () => {
+    battle.moveEffects = [];
+    applyTurnDamage(player, pc, result);
+  };
   const damageToPlayer = result.damageToPlayer;
   const damageToPc = result.damageToPc;
 
@@ -259,6 +284,27 @@ function createDamageMessages(player, pc, result) {
     return [{ text: MESSAGES.PC_DAMAGED(damageToPc), onStart: applyDamage }];
   }
   return [{ text: MESSAGES.NO_DAMAGE, onStart: applyDamage }];
+}
+
+function createSpecialUsedMessage(pokemon) {
+  return {
+    text: MESSAGES.SPECIAL_USED(battleSubject(pokemon), pokemon.specialName),
+    onComplete: () => startSpecialFlash(pokemon),
+  };
+}
+
+function createBothSpecialMessage(player, pc) {
+  return {
+    text: MESSAGES.BOTH_SPECIAL,
+    onComplete: () => {
+      startSpecialFlash(player);
+      startSpecialFlash(pc);
+    },
+  };
+}
+
+function startSpecialFlash(pokemon) {
+  pokemon.flashUntil = performance.now() + SPECIAL_FLASH_MS;
 }
 
 function applyTurnDamage(player, pc, result) {
@@ -287,6 +333,14 @@ function computeTurn(player, pc, pMove, cMove, logs) {
   let damageToPlayer = 0;
   let damageToPc = 0;
   const pendingSpecials = [];
+＠  const queueSpecial = (self, target) => {
+    logs.push(createSpecialUsedMessage(self));
+    if (isThunderWave(self) && Math.random() >= THUNDER_WAVE_SUCCESS_RATE) {
+      logs.push(MESSAGES.SPECIAL_FAILED);
+      return;
+    }
+    pendingSpecials.push({ self, target });
+  };
 
   if (!pMove && cMove) {
     damageToPlayer = Math.max(1, pc.atk - player.currentDef);
@@ -295,8 +349,7 @@ function computeTurn(player, pc, pMove, cMove, logs) {
 
   if (pMove && !cMove) {
     if (pSpecial) {
-      logs.push(MESSAGES.SPECIAL_USED(battleSubject(player), player.specialName));
-      pendingSpecials.push({ self: player, target: pc });
+      queueSpecial(player, pc);
       return { damageToPlayer, damageToPc, playerSpecial: true, pcSpecial: false, pendingSpecials };
     }
     damageToPc = Math.max(1, player.atk - pc.currentDef);
@@ -304,21 +357,19 @@ function computeTurn(player, pc, pMove, cMove, logs) {
   }
 
   if (pSpecial && cSpecial) {
-    logs.push(MESSAGES.BOTH_SPECIAL);
-    pendingSpecials.push({ self: player, target: pc }, { self: pc, target: player });
+    queueSpecial(player, pc);
+    queueSpecial(pc, player);
     return { damageToPlayer, damageToPc, playerSpecial: true, pcSpecial: true, pendingSpecials };
   }
 
   if (pSpecial) {
-    logs.push(MESSAGES.SPECIAL_USED(battleSubject(player), player.specialName));
-    pendingSpecials.push({ self: player, target: pc });
+    queueSpecial(player, pc);
     damageToPlayer = Math.max(1, pc.atk - player.currentDef);
     return { damageToPlayer, damageToPc, outcome: 'PC_WINS', playerSpecial: true, pcSpecial: false, pendingSpecials };
   }
 
   if (cSpecial) {
-    logs.push(MESSAGES.SPECIAL_USED(battleSubject(pc), pc.specialName));
-    pendingSpecials.push({ self: pc, target: player });
+    queueSpecial(pc, player);
     damageToPc = Math.max(1, player.atk - pc.currentDef);
     return { damageToPlayer, damageToPc, outcome: 'PLAYER_WINS', playerSpecial: false, pcSpecial: true, pendingSpecials };
   }
@@ -339,6 +390,10 @@ function computeTurn(player, pc, pMove, cMove, logs) {
   }
 
   return { damageToPlayer, damageToPc, playerSpecial: false, pcSpecial: false, pendingSpecials };
+}
+
+function isThunderWave(pokemon) {
+  return pokemon.specialEffect === 'PARALYZE_2';
 }
 
 function jankenResult(playerMove, pcMove) {

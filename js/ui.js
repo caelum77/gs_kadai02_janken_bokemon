@@ -92,8 +92,18 @@ function advanceMessage(state) {
   state.textState.lastTick = 0;
   state.textState.done = false;
   state.textState.canAdvanceAt = typeof next === 'object' && next.waitMs ? performance.now() + next.waitMs : 0;
+  state.textState.onComplete = typeof next === 'object' ? next.onComplete : null;
+  state.textState.completed = false;
   if (typeof next === 'object' && next.onStart) next.onStart();
   return true;
+}
+
+function completeTextMessage(textState) {
+  textState.visibleText = textState.fullText;
+  textState.charIndex = textState.fullText.length;
+  textState.done = true;
+  if (!textState.completed && textState.onComplete) textState.onComplete();
+  textState.completed = true;
 }
 
 function updateTypewriter(textState, timestamp) {
@@ -103,5 +113,5 @@ function updateTypewriter(textState, timestamp) {
   textState.lastTick = timestamp;
   textState.charIndex += 1;
   textState.visibleText = textState.fullText.slice(0, textState.charIndex);
-  if (textState.charIndex >= textState.fullText.length) textState.done = true;
+  if (textState.charIndex >= textState.fullText.length) completeTextMessage(textState);
 }

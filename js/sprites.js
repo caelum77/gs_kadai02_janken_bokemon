@@ -24,6 +24,24 @@ Object.entries(playerImages).forEach(([direction, image]) => {
   image.src = `src/me_${direction}.png`;
 });
 
+const moveEffectImages = {
+  GU: new Image(),
+  CHOKI: new Image(),
+  PA: new Image(),
+};
+const moveEffectImageReady = {
+  GU: false,
+  CHOKI: false,
+  PA: false,
+};
+
+Object.entries(moveEffectImages).forEach(([moveId, image]) => {
+  image.onload = () => {
+    moveEffectImageReady[moveId] = true;
+  };
+  image.src = `src/${moveId.toLowerCase()}.png`;
+});
+
 function drawPlayerSprite(ctx, tileX, tileY, direction = 'down') {
   const image = playerImages[direction] || playerImages.down;
   const isReady = playerImageReady[direction] || false;
@@ -63,6 +81,20 @@ function drawPlayerFallback(ctx, x, y, direction = 'down') {
     px(ctx, x + 8, y + 11, 3, 3, COLORS.DARK);
     px(ctx, x + 14, y + 11, 3, 3, COLORS.DARK);
   }
+}
+
+function drawMoveEffectSprite(ctx, moveId, centerX, centerY, height) {
+  const image = moveEffectImages[moveId];
+  if (!image || !moveEffectImageReady[moveId]) return;
+
+  const width = height * (image.width / image.height);
+  ctx.drawImage(
+    image,
+    centerX - width / 2,
+    centerY - height / 2,
+    width,
+    height,
+  );
 }
 
 function drawUnknownPokemon(ctx, x, y, size = 80) {
