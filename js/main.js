@@ -1,15 +1,43 @@
 let canvas;
 let ctx;
 let gameState;
+const START_BATTLE_TRANSITION_MS = 2700;
+const BGM_VOLUME = 0.2;
+const bgm = {
+  map: new Audio('src/8bit_City-Of-Bright-Longing.mp3'),
+  startBattle: new Audio('src/start_battle_BGM.mp3'),
+  duringBattle: new Audio('src/during_battle_BGM.mp3'),
+  winResult: new Audio('src/win_result_BGM.mp3'),
+  loseResult: new Audio('src/lose_result_BGM.mp3'),
+};
+let currentBgm = null;
 
-$(function () {
-  canvas = $('#gameCanvas').get(0);
+bgm.map.loop = true;
+bgm.duringBattle.loop = true;
+bgm.winResult.loop = true;
+bgm.loseResult.loop = true;
+Object.values(bgm).forEach((audio) => {
+  audio.preload = 'auto';
+  audio.volume = BGM_VOLUME;
+});
+
+bgm.startBattle.addEventListener('ended', () => {
+  if (currentBgm !== bgm.startBattle) return;
+  if (gameState.scene === SCENES.MAP || gameState.transition.type === 'BATTLE_TO_MAP') {
+    syncBgm();
+    return;
+  }
+  playBgm(bgm.duringBattle);
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  canvas = document.getElementById('gameCanvas');
   ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
 
   gameState = createInitialState();
 
-  $(window).on('keydown', (event) => {
+  window.addEventListener('keydown', (event) => {
     const key = event.key;
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'z', 'Z', 'x', 'X', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(key)) {
       event.preventDefault();
@@ -17,7 +45,7 @@ $(function () {
     handleInput(key);
   });
 
-  $('#gameCanvas').on('click', () => handleConfirm());
+  canvas.addEventListener('click', () => handleConfirm());
 
   requestAnimationFrame(loop);
 });
@@ -40,6 +68,7 @@ function handleInput(key) {
   if (gameState.scene === SCENES.MAP) handleMapInput(key);
   else if (gameState.scene === SCENES.SELECT) handleSelectInput(key);
   else if (gameState.scene === SCENES.BATTLE) handleBattleInput(key);
+  syncBgm();
 }
 
 function handleMapInput(key) {
@@ -80,10 +109,63 @@ function handleBattleInput(key) {
 function handleConfirm() {
   if (gameState.scene === SCENES.SELECT) choosePokemon(gameState);
   else if (gameState.scene === SCENES.BATTLE) handleBattleConfirm(gameState);
+  syncBgm();
 }
 
 function isConfirm(key) {
   return key === 'Enter' || key.toLowerCase() === 'z';
+}
+
+function syncBgm() {
+  const nextBgm = getBgmForState();
+  if (!nextBgm) {
+    stopBgm();
+    return;
+  }
+  playBgm(nextBgm);
+}
+
+function getBgmForState() {
+  const resultBgm = getResultBgm();
+  if (resultBgm && (gameState.textState?.fullText.endsWith('は たおれた！') || currentBgm === resultBgm)) {
+    return resultBgm;
+  }
+  if (gameState.transition.active && gameState.transition.type === 'FLASH_TO_SELECT') return bgm.startBattle;
+  if (gameState.scene === SCENES.MAP && !gameState.transition.active) return bgm.map;
+  if (gameState.scene === SCENES.SELECT && currentBgm === bgm.startBattle && !bgm.startBattle.ended) return bgm.startBattle;
+  if (gameState.scene === SCENES.SELECT) return bgm.duringBattle;
+  if (gameState.scene === SCENES.BATTLE) return bgm.duringBattle;
+  return null;
+}
+
+function getResultBgm() {
+  if (gameState.battle?.winner === 'PLAYER') return bgm.winResult;
+  if (gameState.battle?.winner === 'PC') return bgm.loseResult;
+  return null;
+}
+
+function playBgm(nextBgm) {
+  if (currentBgm === nextBgm) {
+    if (nextBgm.paused) {
+      nextBgm.volume = BGM_VOLUME;
+      nextBgm.play().catch(() => {});
+    }
+    return;
+  }
+  stopBgm();
+  currentBgm = nextBgm;
+  currentBgm.currentTime = 0;
+  currentBgm.volume = BGM_VOLUME;
+  currentBgm.play().catch(() => {
+    if (currentBgm === nextBgm) currentBgm = null;
+  });
+}
+
+function stopBgm() {
+  if (!currentBgm) return;
+  currentBgm.pause();
+  currentBgm.currentTime = 0;
+  currentBgm = null;
 }
 
 function resetToMap() {
@@ -113,12 +195,15 @@ function update(timestamp) {
 function updateTransition(state, timestamp) {
   if (!state.transition.active) return;
   const elapsed = timestamp - state.transition.startedAt;
-  if (state.transition.type === 'FLASH_TO_SELECT' && elapsed > 1240) {
+  if (state.transition.type === 'FLASH_TO_SELECT' && elapsed > START_BATTLE_TRANSITION_MS) {
     state.transition.active = false;
+    state.transition.type = null;
     startPokemonSelect(state);
+    syncBgm();
   }
   if (state.transition.type === 'BATTLE_TO_MAP' && elapsed > 1100) {
     resetToMap();
+    syncBgm();
   }
 }
 

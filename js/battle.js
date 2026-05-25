@@ -97,15 +97,15 @@ function drawBattleScene(ctx, state, timestamp) {
   drawHPBar(ctx, 302, 264, player.displayHp, player.maxHp, 104);
   drawText(ctx, `${Math.max(0, player.currentHp)}/${player.maxHp}`, 322, 284, 9);
 
-  drawPokemonWithEffects(ctx, pc, 284, 48, 96, false, timestamp);
-  drawPokemonWithEffects(ctx, player, 44, 170, 82, true, timestamp);
+  drawPokemonWithEffects(ctx, pc, 300, 40, 120, false, timestamp);
+  drawPokemonWithEffects(ctx, player, 50, 200, 120, true, timestamp);
   drawMoveEffects(ctx, battle.moveEffects, timestamp);
 
   if (battle.phase === 'COMMAND') {
-    drawTextBox(ctx, { visibleText: `${battleSubject(player, 'あなた')}は こうどうを えらんでね`, done: false });
+    drawTextBox(ctx, { visibleText: `こうどうを えらんでね`, done: false });
     drawMenu(ctx, [{ label: 'たたかう' }, { label: 'にげる' }], battle.commandIndex, 264, 336, 200, 80, { cols: 1 });
   } else if (battle.phase === 'MOVE') {
-    drawTextBox(ctx, { visibleText: `${battleSubject(player, 'あなた')}は わざを えらんでね`, done: false });
+    drawTextBox(ctx, { visibleText: `わざを えらんでね`, done: false });
     const disabled = player.paralyzed > 0;
     const items = MOVES.map((move) => ({
       label: move.id === 'SPECIAL' ? player.specialName : move.name,
@@ -258,10 +258,10 @@ function createParalysisRecoveryMessages(player, pc, playerParalyzedAtTurnStart,
 function createBasicMoveEffects(playerMove, pcMove) {
   const effects = [];
   if (pcMove?.type === 'BASIC') {
-    effects.push({ moveId: pcMove.id, centerX: 242, centerY: 152, height: 67 });
+    effects.push({ moveId: pcMove.id, centerX: 280, centerY: 140, height: 55 });
   }
   if (playerMove?.type === 'BASIC') {
-    effects.push({ moveId: playerMove.id, centerX: 185, centerY: 210, height: 57 });
+    effects.push({ moveId: playerMove.id, centerX: 200, centerY: 200, height: 55 });
   }
   return effects;
 }
@@ -333,7 +333,7 @@ function computeTurn(player, pc, pMove, cMove, logs) {
   let damageToPlayer = 0;
   let damageToPc = 0;
   const pendingSpecials = [];
-＠  const queueSpecial = (self, target) => {
+  const queueSpecial = (self, target) => {
     logs.push(createSpecialUsedMessage(self));
     if (isThunderWave(self) && Math.random() >= THUNDER_WAVE_SUCCESS_RATE) {
       logs.push(MESSAGES.SPECIAL_FAILED);
@@ -409,11 +409,11 @@ function applySpecial(self, target) {
     message = MESSAGES.PARALYZE(battleSubject(target));
   }
   if (self.specialEffect === 'DEF_DOWN_5') {
-    target.currentDef -= 5;
+    target.currentDef = Math.max(target.currentDef -8, 0);
     message = MESSAGES.DEF_DOWN(battleSubject(target));
   }
   if (self.specialEffect === 'DEF_UP_5') {
-    self.currentDef = Math.min(self.currentDef + 5, 30);
+    self.currentDef = Math.min(self.currentDef + 8, 30);
     message = MESSAGES.DEF_UP(battleSubject(self));
   }
 
