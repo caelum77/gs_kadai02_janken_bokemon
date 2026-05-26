@@ -409,11 +409,11 @@ function applySpecial(self, target) {
     message = MESSAGES.PARALYZE(battleSubject(target));
   }
   if (self.specialEffect === 'DEF_DOWN_5') {
-    target.currentDef = Math.max(target.currentDef -8, 0);
+    target.currentDef = Math.max(target.currentDef -10, 0);
     message = MESSAGES.DEF_DOWN(battleSubject(target));
   }
   if (self.specialEffect === 'DEF_UP_5') {
-    self.currentDef = Math.min(self.currentDef + 8, 30);
+    self.currentDef = Math.min(self.currentDef + 8, 47);
     message = MESSAGES.DEF_UP(battleSubject(self));
   }
 
