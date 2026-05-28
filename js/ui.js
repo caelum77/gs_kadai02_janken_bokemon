@@ -102,6 +102,9 @@ function advanceMessage(state) {
   state.textState.done = false;
   state.textState.canAdvanceAt = typeof next === 'object' && next.waitMs ? performance.now() + next.waitMs : 0;
   state.textState.onComplete = typeof next === 'object' ? next.onComplete : null;
+  state.textState.onBeforeAdvance = typeof next === 'object' ? next.onBeforeAdvance : null;
+  state.textState.waitAfterBeforeAdvanceMs = typeof next === 'object' ? next.waitAfterBeforeAdvanceMs : 0;
+  state.textState.beforeAdvanceDone = false;
   state.textState.completed = false;
   if (typeof next === 'object' && next.onStart) next.onStart();
   return true;

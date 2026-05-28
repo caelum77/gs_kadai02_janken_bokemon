@@ -1,6 +1,7 @@
 const FAINT_ANIMATION_MS = 700;
 const FAINT_DROP_DISTANCE = 42;
 const SPECIAL_FLASH_MS = 550;
+const ENTRANCE_ANIMATION_MS = 650;
 
 function createPokemon(template, ownerLabel = '') {
   return {
@@ -13,6 +14,9 @@ function createPokemon(template, ownerLabel = '') {
     shakeUntil: 0,
     flashUntil: 0,
     faintStartedAt: null,
+    battleVisible: false,
+    entranceStartedAt: null,
+    entranceFrom: null,
   };
 }
 
@@ -52,8 +56,16 @@ function choosePokemon(state) {
   state.battle.phase = 'INTRO_TEXT';
   setMessage(state, [
     MESSAGES.BATTLE_START(battleSubject(state.battle.pcPokemon, 'タケシ')),
-    MESSAGES.SEND_OUT(battleSubject(state.battle.pcPokemon, 'タケシ'), state.battle.pcPokemon.name),
-    MESSAGES.GO_PLAYER(state.battle.playerPokemon.name),
+    {
+      text: MESSAGES.SEND_OUT(battleSubject(state.battle.pcPokemon, 'タケシ'), state.battle.pcPokemon.name),
+      onBeforeAdvance: () => startPokemonEntrance(state.battle.pcPokemon, 'right'),
+      waitAfterBeforeAdvanceMs: ENTRANCE_ANIMATION_MS,
+    },
+    {
+      text: MESSAGES.GO_PLAYER(state.battle.playerPokemon.name),
+      onBeforeAdvance: () => startPokemonEntrance(state.battle.playerPokemon, 'left'),
+      waitAfterBeforeAdvanceMs: ENTRANCE_ANIMATION_MS,
+    },
   ], 'COMMAND');
 }
 
@@ -118,6 +130,8 @@ function drawBattleScene(ctx, state, timestamp) {
 }
 
 function drawPokemonWithEffects(ctx, pokemon, x, y, size, back, timestamp) {
+  if (!pokemon.battleVisible) return;
+
   const shake = timestamp < pokemon.shakeUntil ? Math.sin(timestamp / 20) * 4 : 0;
   const flashing = timestamp < pokemon.flashUntil && Math.floor(timestamp / 100) % 2 === 0;
   if (flashing) return;
@@ -127,10 +141,29 @@ function drawPokemonWithEffects(ctx, pokemon, x, y, size, back, timestamp) {
   if (faintProgress >= 1) return;
 
   const easedFaint = faintProgress * faintProgress;
+  const entranceX = getPokemonEntranceX(pokemon, x, size, timestamp);
   ctx.save();
   ctx.globalAlpha = 1 - faintProgress;
-  drawPokemonSprite(ctx, pokemon, x + shake, y + easedFaint * FAINT_DROP_DISTANCE, size, back);
+  drawPokemonSprite(ctx, pokemon, entranceX + shake, y + easedFaint * FAINT_DROP_DISTANCE, size, back);
   ctx.restore();
+}
+
+function startPokemonEntrance(pokemon, from) {
+  if (!pokemon || pokemon.battleVisible) return;
+  pokemon.battleVisible = true;
+  pokemon.entranceStartedAt = performance.now();
+  pokemon.entranceFrom = from;
+}
+
+function getPokemonEntranceX(pokemon, targetX, size, timestamp) {
+  if (!pokemon.entranceStartedAt) return targetX;
+  const elapsed = timestamp - pokemon.entranceStartedAt;
+  const progress = Math.min(1, elapsed / ENTRANCE_ANIMATION_MS);
+  if (progress >= 1) return targetX;
+
+  const eased = 1 - (1 - progress) * (1 - progress);
+  const startX = pokemon.entranceFrom === 'right' ? CANVAS_WIDTH + size * 0.2 : -size;
+  return startX + (targetX - startX) * eased;
 }
 
 function drawMoveEffects(ctx, effects = [], timestamp) {
@@ -163,6 +196,7 @@ function handleBattleConfirm(state) {
   }
   if (state.textState?.done) {
     if (state.textState.canAdvanceAt && performance.now() < state.textState.canAdvanceAt) return;
+    if (runBeforeAdvanceAction(state.textState)) return;
     if (!advanceMessage(state)) {
       if (battle.escaped) beginReturnToMapTransition(state);
       else if (battle.winner) beginReturnToMapTransition(state);
@@ -171,6 +205,16 @@ function handleBattleConfirm(state) {
   } else if (state.textState) {
     completeTextMessage(state.textState);
   }
+}
+
+function runBeforeAdvanceAction(textState) {
+  if (!textState.onBeforeAdvance || textState.beforeAdvanceDone) return false;
+  textState.onBeforeAdvance();
+  textState.beforeAdvanceDone = true;
+  if (textState.waitAfterBeforeAdvanceMs) {
+    textState.canAdvanceAt = performance.now() + textState.waitAfterBeforeAdvanceMs;
+  }
+  return true;
 }
 
 function resolveTurn(state, playerMove) {
@@ -397,8 +441,8 @@ function isThunderWave(pokemon) {
 }
 
 function jankenResult(playerMove, pcMove) {
-  if (playerMove === pcMove) return 0;
-  return (playerMove - pcMove + 3) % 3 === 2 ? 1 : -1;
+if (playerMove === pcMove) return 0;
+return (playerMove - pcMove + 3) % 3 === 2 ? 1 : -1;
 }
 
 function applySpecial(self, target) {

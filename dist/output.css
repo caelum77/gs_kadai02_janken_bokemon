@@ -186,11 +186,35 @@
   .aspect-\[10\/9\] {
     aspect-ratio: 10/9;
   }
+  .h-2 {
+    height: calc(var(--spacing) * 2);
+  }
+  .h-12 {
+    height: calc(var(--spacing) * 12);
+  }
+  .h-16 {
+    height: calc(var(--spacing) * 16);
+  }
+  .h-24 {
+    height: calc(var(--spacing) * 24);
+  }
+  .h-28 {
+    height: calc(var(--spacing) * 28);
+  }
+  .h-32 {
+    height: calc(var(--spacing) * 32);
+  }
+  .h-324 {
+    height: calc(var(--spacing) * 324);
+  }
   .h-full {
     height: 100%;
   }
   .min-h-screen {
     min-height: 100vh;
+  }
+  .w-auto {
+    width: auto;
   }
   .w-full {
     width: 100%;
@@ -269,26 +293,12 @@
   .text-center {
     text-align: center;
   }
-  .font-pixel {
-    font-family: var(--font-pixel);
-  }
   .text-\[10px\] {
     font-size: 10px;
-  }
-  .text-\[23px\] {
-    font-size: 23px;
   }
   .leading-5 {
     --tw-leading: calc(var(--spacing) * 5);
     line-height: calc(var(--spacing) * 5);
-  }
-  .font-bold {
-    --tw-font-weight: var(--font-weight-bold);
-    font-weight: var(--font-weight-bold);
-  }
-  .tracking-normal {
-    --tw-tracking: var(--tracking-normal);
-    letter-spacing: var(--tracking-normal);
   }
   .text-\[\#181018\] {
     color: #181018;
@@ -308,11 +318,6 @@
   .sm\:grid-cols-4 {
     @media (width >= 40rem) {
       grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .sm\:text-\[29px\] {
-    @media (width >= 40rem) {
-      font-size: 29px;
     }
   }
 }
@@ -434,14 +439,6 @@
   syntax: "*";
   inherits: false;
 }
-@property --tw-font-weight {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-tracking {
-  syntax: "*";
-  inherits: false;
-}
 @property --tw-shadow {
   syntax: "*";
   inherits: false;
@@ -512,8 +509,6 @@
     *, ::before, ::after, ::backdrop {
       --tw-border-style: solid;
       --tw-leading: initial;
-      --tw-font-weight: initial;
-      --tw-tracking: initial;
       --tw-shadow: 0 0 #0000;
       --tw-shadow-color: initial;
       --tw-shadow-alpha: 100%;

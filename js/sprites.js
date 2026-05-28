@@ -167,16 +167,28 @@ function drawEepui(ctx, x, y, size, back) {
 
 function drawBurin(ctx, x, y, size, back) {
   const u = size / 16;
+
+  if (back) {
+    px(ctx, x + 5 * u, y + 1 * u, 6 * u, 3 * u, '#d078a8');
+    px(ctx, x + 4 * u, y, 4 * u, 2 * u, '#e8a8c8');
+    px(ctx, x + 5 * u, y + 2 * u, 6 * u, 2 * u, '#e8a8c8');
+    px(ctx, x + 3 * u, y + 4 * u, 10 * u, 2 * u, '#e8a8c8');
+    px(ctx, x + 2 * u, y + 6 * u, 12 * u, 5 * u, '#e8a8c8');
+    px(ctx, x + 3 * u, y + 11 * u, 10 * u, 3 * u, '#d890b8');
+    px(ctx, x + 5 * u, y + 14 * u, 6 * u, 1 * u, '#c86898');
+    px(ctx, x + 1 * u, y + 7 * u, 3 * u, 2 * u, '#d890b8');
+    px(ctx, x + 12 * u, y + 7 * u, 3 * u, 2 * u, '#d890b8');
+    px(ctx, x + 6 * u, y + 5 * u, 5 * u, 2 * u, '#d078a8');
+    px(ctx, x + 7 * u, y + 6 * u, 3 * u, 1 * u, '#c86898');
+    return;
+  }
+
   drawPixelBall(ctx, x + 2 * u, y + 2 * u, 12 * u, '#e8a8c8', '#d078a8');
   px(ctx, x + 5 * u, y + 1 * u, 6 * u, 3 * u, '#d078a8');
   px(ctx, x + 4 * u, y, 4 * u, 2 * u, '#e8a8c8');
   px(ctx, x + 1 * u, y + 6 * u, 3 * u, 2 * u, '#e8a8c8');
   px(ctx, x + 12 * u, y + 6 * u, 3 * u, 2 * u, '#e8a8c8');
-  if (!back) {
-    px(ctx, x + 6 * u, y + 7 * u, u, 1.5 * u, '#4088a8');
-    px(ctx, x + 10 * u, y + 7 * u, u, 1.5 * u, '#4088a8');
-    px(ctx, x + 8 * u, y + 10 * u, 2 * u, u, COLORS.DARK);
-  } else {
-    px(ctx, x + 6 * u, y + 5 * u, 5 * u, 2 * u, '#d078a8');
-  }
+  px(ctx, x + 6 * u, y + 7 * u, u, 1.5 * u, '#4088a8');
+  px(ctx, x + 10 * u, y + 7 * u, u, 1.5 * u, '#4088a8');
+  px(ctx, x + 8 * u, y + 10 * u, 2 * u, u, COLORS.DARK);
 }
